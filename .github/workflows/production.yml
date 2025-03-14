@@ -1,0 +1,53 @@
+name: CICD with environmental protection
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Compile
+        run: echo Building Image/Artifact!
+    
+  DeployToDevelopment:
+    name: Deploy to Development Phase
+    if: github.event_name == 'pull_request'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Development Phase
+      url: 'https://portfolio-6b3d6.firebaseapp.com/'
+    steps:
+      - name: First Phase Deployment
+        run: echo I am deploying to firebase for development! 
+    
+  DeployToStaging:
+    name: Deploy to Staging 
+    if: github.event.ref == 'refs/heads/main'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Staging
+      url: 'https://portfolio-6b3d6.web.app/'
+    steps:
+      - name: Deploy
+        run: echo I am deploying to firebase for staging! 
+            
+  DeployProd:
+    name: Deploy to Production 
+    needs: [DeployToStaging]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Production
+      url: 'https://raihan.dev/'
+    steps:
+      - name: Deploy
+        run: echo I am deploying to Production! 
+    
